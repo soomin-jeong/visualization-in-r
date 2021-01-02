@@ -1,3 +1,4 @@
+setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/happiness_report_shiny_app")
 library(shiny)
 
 # Define UI for app that draws a histogram ----
@@ -18,7 +19,10 @@ ui <- fluidPage(
                                    ),
                 sliderInput("date_range", 
                             h3("Date Range"),
-                            min = 0, max = 100, value = c(0, 100)
+                            min = as.Date("2015-01-01","%Y-%m-%d"),
+                            max = as.Date("2018-12-01","%Y-%m-%d"),
+                            value=c(as.Date("2016-01-01"), as.Date("2017-12-01")),
+                            timeFormat="%Y-%m-%d"
                             )
                  ),
     mainPanel(
