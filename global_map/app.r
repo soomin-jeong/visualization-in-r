@@ -38,16 +38,16 @@ server <- function(input, output, session){
     {
       data %>%
         mutate(iso3 = countrycode(Country,"country.name","iso3c")) %>%
-        mutate(score = Happiness.Score)
+        mutate(score = as.numeric(Happiness.Score))
        ## TO BE ADDED WITH THE DATASET IN OTHER YEARS
        ##filter(YEAR_ID == as.numeric(input$yearid)) %>% 
     }
   )
   
   output$chart <- renderHighchart(highchart(type = "map") %>% 
-                                    hc_add_series_map(map = worldgeojson, df = score(), value = "score", joinBy = "iso3") %>% 
+                                    hc_add_series_map(map = worldgeojson, df = score(), value = "Happiness.Score", joinBy = "iso3") %>% 
                                     hc_colorAxis(stops = color_stops()) %>% 
-                                    hc_tooltip(useHTML=TRUE,headerFormat='',pointFormat = paste0(input$yearid,'  {point.Country} score : {point.score} ')) %>% 
+                                    hc_tooltip(useHTML=TRUE,headerFormat='',pointFormat = paste0(input$yearid,'  {point.Country} score : {point.score}')) %>% 
                                     hc_title(text = 'Global Hapiness Score') %>% 
                                     hc_subtitle(text = paste0('Year: ',input$yearid)) %>% 
                                     hc_exporting(enabled = TRUE,filename = 'custom')
