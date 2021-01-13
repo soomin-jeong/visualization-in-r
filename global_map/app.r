@@ -1,5 +1,11 @@
-setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/happiness_report_shiny_app")
+# Global Map
+setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/global_map")
+
+data <- read.csv("../data/2015.csv")
+source("helpers.R")
+
 library(shiny)
+# Q3: What is the evolution of happiness over time? 
 
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
@@ -11,12 +17,6 @@ ui <- fluidPage(
   ),
   sidebarLayout(
     sidebarPanel(
-                checkboxGroupInput("countries", 
-                                   h3("Countries"), 
-                                   choices = list("Spain" = "Spain", 
-                                                  "Korea" = "Korea", 
-                                                  "USA" = "USA")
-                                   ),
                 sliderInput("date_range", 
                             h3("Date Range"),
                             min = as.Date("2015-01-01","%Y-%m-%d"),
