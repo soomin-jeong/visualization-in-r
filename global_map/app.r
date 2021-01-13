@@ -2,43 +2,59 @@
 setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/global_map")
 
 data <- read.csv("../data/2015.csv")
-source("helpers.R")
 
-library(shiny)
+# source("helpers.R")
+
 # Q3: What is the evolution of happiness over time? 
+library(shiny)
+library(highcharter)
+library(countrycode)
+library(shinydashboard)
+library(dplyr)
+library(openintro)
 
-# Define UI for app that draws a histogram ----
-ui <- fluidPage(
-  titlePanel(h1("Happiness Around the Globe")),
-  fluidRow(
-    column(12,
-           helpText("In this graph, you can see the distribution of the global happiness including 151 countries")
-    )
-  ),
-  sidebarLayout(
-    sidebarPanel(
-                sliderInput("date_range", 
-                            h3("Date Range"),
-                            min = as.Date("2015-01-01","%Y-%m-%d"),
-                            max = as.Date("2018-12-01","%Y-%m-%d"),
-                            value=c(as.Date("2016-01-01"), as.Date("2017-12-01")),
-                            timeFormat="%Y-%m-%d"
-                            )
-                 ),
-    mainPanel(
-      textOutput("selected_var")
+data <- read.csv("../data/2015.csv")
+colnames(data)
+
+ui<-
+  dashboardPage(
+    dashboardHeader(title = "Global Map with Happiness Score"),
+    dashboardSidebar(
+      
+      sidebarMenu( 
+        # TODO : add up to 2019
+        selectInput('yearid','Select Year for Global Happiness Score',choices = c(2015),selected = 2015)
+      )),
+    dashboardBody(
+      tabBox(title = 'Global Happiness Map',id = 'tabset1',width = 12, tabPanel('Happiness Score',highchartOutput('chart',height = '500px')))
+      
     )
   )
-)
 
-# Define server logic required to draw a histogram ----
-server <- function(input, output) {
-  output$selected_var <- renderText({
-    paste("You have countries: ", c(input$countries), "&",
-          "You have range:", input$date_range[1], input$date_range[2])
+
+
+server <- function(input, output, session){
+  score <- reactive(
+    {
+      data %>%
+        mutate(iso3 = countrycode(Country,"country.name","iso3c")) %>%
+        mutate(score = Happiness.Score)
+       ## TO BE ADDED WITH THE DATASET IN OTHER YEARS
+       ##filter(YEAR_ID == as.numeric(input$yearid)) %>% 
+    }
+  )
+  
+  output$chart <- renderHighchart(highchart(type = "map") %>% 
+                                    hc_add_series_map(map = worldgeojson, df = score(), value = "score", joinBy = "iso3") %>% 
+                                    hc_colorAxis(stops = color_stops()) %>% 
+                                    hc_tooltip(useHTML=TRUE,headerFormat='',pointFormat = paste0(input$yearid,'  {point.Country} score : {point.score} ')) %>% 
+                                    hc_title(text = 'Global Hapiness Score') %>% 
+                                    hc_subtitle(text = paste0('Year: ',input$yearid)) %>% 
+                                    hc_exporting(enabled = TRUE,filename = 'custom')
+  )
+  observeEvent(input$yearid,{
+    updateTabItems(session,'tabset1')
   })
-
 }
 
-shinyApp(ui = ui, server = server)
-
+shinyApp(ui=ui, server=server)
