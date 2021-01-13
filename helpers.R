@@ -1,8 +1,10 @@
 library(plotly)
 
 
-selectData <- function(region){
-  data <- read.csv("2015.csv")
+selectData <- function(region, yearRange){
+  data <- read.csv("FullData.csv")
+  data[is.na(data)] <- 0
+  data <- data[(data$Year >= yearRange[1]) & (data$Year <= yearRange[2]), ]
   if (region == 'All'){
     return(data)
   }
@@ -14,14 +16,14 @@ selectData <- function(region){
 }
   
 
-plot_relationships <- function(region){
-  data <- selectData(region)
+plot_relationships <- function(region, years){
+  print(years)
+  data <- selectData(region, years)
   vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
-  df <- data[c('Country', 'Region', "Happiness.Score", vars)]
-  colnames(df) <- c('Country', "Region", "Happiness", 'Economy', 'Family', 'Health', 'Freedom', 'Trust', 'Generosity')
+  print(vars)
   
   # heatmap
-  cor_list <- cor(data$Happiness.Score, data[vars])
+  cor_list <- cor(data$HappinessScore, data[vars])
   heatmap <- plot_ly(z = cor_list, x = vars, type='heatmap')
   heatmap <- heatmap %>% layout(xaxis=list(side='top'), yaxis=list(showticklabels=FALSE, 
                                                                    showline=FALSE,
@@ -38,31 +40,33 @@ plot_relationships <- function(region){
       color = 'rgb(230,230,230)'
     )
   )
+  text_format = ~paste("Country: ", Country, 
+                       "\nYear: ", Year)
   
-  fig1 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Economy, #color=~Region
+  fig1 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Economy, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
-  fig2 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Family, #color=~Region
+                  text = text_format, showlegend=F)
+  fig2 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Family, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
-  fig3 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Health, #color=~Region
+                  text = text_format, showlegend=F)
+  fig3 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Health, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
-  fig4 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Freedom, #color=~Region
+                  text = text_format, showlegend=F)
+  fig4 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Freedom, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
-  fig5 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Trust, #color=~Region
+                  text = text_format, showlegend=F)
+  fig5 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~GovernmentCorruption, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
-  fig6 <- plot_ly(type= 'scatter', data = df, y=~Happiness, x=~Generosity, #color=~Region
+                  text = text_format, showlegend=F)
+  fig6 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Generosity, #color=~Region
                   marker=marker_format,
                   # Hover text:
-                  text = ~paste("Country: ", Country), showlegend=F)
+                  text = text_format, showlegend=F)
   
   scatter_fig <-subplot(fig1, fig2, fig3, fig4, fig5, fig6)
   scatter_fig <- scatter_fig %>% layout(showlegend=FALSE)

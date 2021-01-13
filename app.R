@@ -5,25 +5,33 @@ library(quantmod)
 # Source helpers ----
 source("helpers.R")
 
+list_regions <- list('All', 
+                     'Europe',
+                     "America",
+                     'Africa',
+                     'Asia',
+                     'Oceanico')
+
+list_countries <- list()
+
 # User interface ----
 ui <- fluidPage(
-  list_regions <- list('All', 
-                       'Western Europe',
-                       "North America",
-                       'Africa',
-                       'Asia'),
   
   titlePanel("Interactive Visualization Tool for Happiness Analysis"),
   navbarPage("Choose Plot Type:",
              tabPanel("Spatial Plot", 
                       sidebarLayout(
                         sidebarPanel(
-                          helpText("Interaction Panel"),
+                          h4("Interaction Panel"),
                           selectInput("region", "Choose a region:",
                                       list_regions
                           ),
                           
-                          sliderInput("Year",
+                          selectInput("country", "Choose a country:",
+                                      choices = c()
+                          ),
+                          
+                          sliderInput("Year1",
                                       "Select the year-range:",
                                       min = 2015,
                                       max = 2019,
@@ -37,12 +45,12 @@ ui <- fluidPage(
              tabPanel("Relationship Plot", 
                       sidebarLayout(
                         sidebarPanel(
-                          helpText("Interaction Panel"),
+                          h4("Interaction Panel"),
                           selectInput("region2", "Choose a region:",
                                       list_regions
                           ),
                           
-                          sliderInput("Year",
+                          sliderInput("Year2",
                                       "Select the year-range:",
                                       min = 2015,
                                       max = 2019,
@@ -54,7 +62,7 @@ ui <- fluidPage(
              tabPanel("Plot 3", 
                       sidebarLayout(
                         sidebarPanel(
-                          helpText("Interaction Panel"),
+                          h4("Interaction Panel"),
                           selectInput("region", "Choose a region:",
                                       list('All', 
                                            'Europe',
@@ -62,7 +70,7 @@ ui <- fluidPage(
                                            'Asia')
                           ),
                           
-                          sliderInput("Year",
+                          sliderInput("Year3",
                                       "Select the year-range:",
                                       min = 2015,
                                       max = 2019,
@@ -75,9 +83,21 @@ ui <- fluidPage(
 )
 
 # Server logic
-server <- function(input, output) {
-  output$plot <- renderPlotly(scatter_matrix(input$region))
-  output$plot2 <- renderPlotly(plot_relationships(input$region2))
+server <- function(input, output, session) {
+  myData <- reactive({
+    selectData(input$region, input$Year1)
+  })
+  
+  observe({
+    x <- sort(unique(myData()$Country))
+    # Can also set the label and select items
+    updateSelectInput(session, "country",
+                      choices = x,
+                      selected = x[1]
+    )
+  })
+  #output$plot <- renderPlotly()
+  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2))
 }
 
 # Run the app
