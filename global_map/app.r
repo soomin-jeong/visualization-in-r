@@ -18,7 +18,7 @@ colnames(data)
 
 ui<-
   dashboardPage(
-    dashboardHeader(title = "Global Map with Happiness Score"),
+    dashboardHeader(title = "Happiness Score"),
     dashboardSidebar(
       
       sidebarMenu( 
