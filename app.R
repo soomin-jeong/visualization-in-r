@@ -27,9 +27,6 @@ ui <- fluidPage(
                                       list_regions
                           ),
                           
-                          selectInput("country", "Choose a country:",
-                                      choices = c()
-                          ),
                           
                           sliderInput("Year1",
                                       "Select the year-range:",
@@ -48,6 +45,10 @@ ui <- fluidPage(
                           h4("Interaction Panel"),
                           selectInput("region2", "Choose a region:",
                                       list_regions
+                          ),
+                          
+                          selectInput("country", "Choose a country to highlight:",
+                                      choices = c()
                           ),
                           
                           sliderInput("Year2",
@@ -85,7 +86,7 @@ ui <- fluidPage(
 # Server logic
 server <- function(input, output, session) {
   myData <- reactive({
-    selectData(input$region, input$Year1)
+    selectData(input$region, input$Year1, input$country)
   })
   
   observe({
@@ -93,11 +94,11 @@ server <- function(input, output, session) {
     # Can also set the label and select items
     updateSelectInput(session, "country",
                       choices = x,
-                      selected = x[1]
+                      selected = ""
     )
   })
   #output$plot <- renderPlotly()
-  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2))
+  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2, input$country))
 }
 
 # Run the app

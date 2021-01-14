@@ -1,9 +1,13 @@
 library(plotly)
 
 
-selectData <- function(region, yearRange){
+selectData <- function(region, yearRange, country){
   data <- read.csv("FullData.csv")
   data[is.na(data)] <- 0
+  data$color = rep('rgb(51, 153, 255)', nrow(data))
+  if (country != ""){
+    data[data$Country == country, ]$color = "orange"
+  }
   data <- data[(data$Year >= yearRange[1]) & (data$Year <= yearRange[2]), ]
   if (region == 'All'){
     return(data)
@@ -16,9 +20,9 @@ selectData <- function(region, yearRange){
 }
   
 
-plot_relationships <- function(region, years){
+plot_relationships <- function(region, years, country){
   print(years)
-  data <- selectData(region, years)
+  data <- selectData(region, years, country)
   vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
   print(vars)
   
@@ -32,7 +36,7 @@ plot_relationships <- function(region, years){
   
   # Scatter plot
   marker_format = list(
-    color = 'rgb(17, 157, 255)',
+    color = data$color,
     #colorscale = pl_colorscale,
     size = 7,
     line = list(
