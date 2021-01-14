@@ -8,11 +8,13 @@ source("helpers.R")
 list_regions <- list('All', 
                      'Europe',
                      "America",
-                     'Africa',
+                     'Africa & Middle East',
                      'Asia',
                      'Oceanico')
 
 list_countries <- list()
+
+list_colors <- list("Reds", "Blues", "Oranges")
 
 # User interface ----
 ui <- fluidPage(
@@ -35,7 +37,10 @@ ui <- fluidPage(
                                       value= c(2015, 2019),
                                       dragRange=TRUE)
                         ),
-                        mainPanel(plotlyOutput("plot"))
+                        mainPanel(plotlyOutput("plot"), 
+                                  HTML("<footer>
+                                       By Tom van Knippenberg, Soo Min Jeong and Arturo Piñar Adan
+                                       </footer>"))
                         
                       )),
              
@@ -51,6 +56,10 @@ ui <- fluidPage(
                                       choices = c()
                           ),
                           
+                          selectInput("color", "Choose the color map:",
+                                      choices = list_colors
+                          ),
+                          
                           sliderInput("Year2",
                                       "Select the year-range:",
                                       min = 2015,
@@ -58,7 +67,10 @@ ui <- fluidPage(
                                       value= c(2015, 2019),
                                       dragRange=TRUE)
                         ),
-                        mainPanel(plotlyOutput("plot2")))),
+                        mainPanel(plotlyOutput("plot2"),
+                                  HTML("<footer>
+                                       By Tom van Knippenberg, Soo Min Jeong and Arturo Piñar Adan
+                                       </footer>")))),
              
              tabPanel("Plot 3", 
                       sidebarLayout(
@@ -78,7 +90,10 @@ ui <- fluidPage(
                                       value= c(2015, 2019),
                                       dragRange=TRUE)
                         ),
-                        mainPanel(plotlyOutput("plot3")))
+                        mainPanel(plotlyOutput("plot3"),
+                                  HTML("<footer>
+                                       By Tom van Knippenberg, Soo Min Jeong and Arturo Piñar Adan
+                                       </footer>")))
                       )
   ),
 )
@@ -98,7 +113,8 @@ server <- function(input, output, session) {
     )
   })
   #output$plot <- renderPlotly()
-  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2, input$country))
+  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2, input$country,
+                                                  input$color))
 }
 
 # Run the app

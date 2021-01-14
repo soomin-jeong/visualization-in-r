@@ -12,15 +12,32 @@ selectData <- function(region, yearRange, country){
   if (region == 'All'){
     return(data)
   }
+  else if (region == 'Europe'){
+    data <- data[(data$Region == "Western Europe") | 
+                   (data$Region ==  "Central and Eastern Europe"), ] 
+  }
+  else if (region == 'America'){
+    data <- data[(data$Region == "North America") | 
+                   (data$Region ==  "Latin America and Caribbean"), ] 
+  }
+  else if (region == 'Asia'){
+    data <- data[(data$Region == "Southeastern Asia") | 
+                   (data$Region ==   "Eastern Asia" |
+                      (data$Region == "Southern Asia")), ] 
+  }
+  else if (region == 'Africa & Middle East'){
+    data <- data[(data$Region == "Sub-Saharan Africa") | 
+                   (data$Region ==   "Middle East and Northern Africa"), ]
+  }
   else{
-    data <- data[data$Region == region, ]    
+    data <- data[(data$Region == "Australia and New Zealand"),]   
   }
   
   return(data)
 }
   
 
-plot_relationships <- function(region, years, country){
+plot_relationships <- function(region, years, country, color){
   print(years)
   data <- selectData(region, years, country)
   vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
@@ -28,7 +45,7 @@ plot_relationships <- function(region, years, country){
   
   # heatmap
   cor_list <- cor(data$HappinessScore, data[vars])
-  heatmap <- plot_ly(z = cor_list, x = vars, type='heatmap')
+  heatmap <- plot_ly(z = cor_list, x = vars, type='heatmap', colors = color)
   heatmap <- heatmap %>% layout(xaxis=list(side='top'), yaxis=list(showticklabels=FALSE, 
                                                                    showline=FALSE,
                                                                    showgrid=FALSE,
@@ -51,26 +68,32 @@ plot_relationships <- function(region, years, country){
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig1 <- fig1 %>% layout(yaxis=list(range = c(0,10)))
   fig2 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Family, #color=~Region
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig2 <- fig2 %>% layout(yaxis=list(range = c(0,10)))
   fig3 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Health, #color=~Region
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig3 <- fig3 %>% layout(yaxis=list(range = c(0,10)))
   fig4 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Freedom, #color=~Region
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig4 <- fig4 %>% layout(yaxis=list(range = c(0,10)))
   fig5 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~GovernmentCorruption, #color=~Region
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig5 <- fig5 %>% layout(yaxis=list(range = c(0,10)))
   fig6 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Generosity, #color=~Region
                   marker=marker_format,
                   # Hover text:
                   text = text_format, showlegend=F)
+  fig6 <- fig6 %>% layout(yaxis=list(range = c(0,10)))
   
   scatter_fig <-subplot(fig1, fig2, fig3, fig4, fig5, fig6)
   scatter_fig <- scatter_fig %>% layout(showlegend=FALSE)
@@ -81,8 +104,7 @@ plot_relationships <- function(region, years, country){
   return(fig)
 }
 
-# 
-# # Scatter matrix
+# Scatter matrix
 
 scatter_matrix <- function(region){
   data <- selectData(region)
@@ -108,15 +130,6 @@ scatter_matrix <- function(region){
         list(label='Generosity', values=~Generosity)
       ),
       text=~Country
-      # marker = list(
-      #   #color = as.integer(df),
-      #   #colorscale = pl_colorscale,
-      #   size = 7,
-      #   line = list(
-      #     width = 1,
-      #     color = 'rgb(230,230,230)'
-      #   )
-      # )
     )
 
   fig <- fig %>%
