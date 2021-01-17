@@ -11,6 +11,8 @@ library(ECharts2Shiny)
 
 # Q3: What is the evolution of happiness over time? 
 
+joined_data
+
 ui <- fluidPage(
   loadEChartsLibrary(),
   titlePanel(h1("Happiness By Region", align="center")),

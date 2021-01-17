@@ -159,8 +159,6 @@ country_names = list("Switzerland" = "Switzerland",
                      "Togo" = "Togo")
 
 data <- read.csv("../data/FullData.csv")
-data %>% filter(Year==2018)
-data_2018 = read.csv("../data/2018.csv")
 split = data %>% select(c('Country', 'HappinessScore', 'Year')) %>%
   group_split(Year) 
 
