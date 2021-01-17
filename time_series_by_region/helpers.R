@@ -157,3 +157,25 @@ country_names = list("Switzerland" = "Switzerland",
                      "Syria" = "Syria",
                      "Burundi" = "Burundi",
                      "Togo" = "Togo")
+
+data <- read.csv("../data/FullData.csv")
+data %>% filter(Year==2018)
+data_2018 = read.csv("../data/2018.csv")
+split = data %>% select(c('Country', 'HappinessScore', 'Year')) %>%
+  group_split(Year) 
+
+joined = merge(x=split[[1]], y=split[[2]], by='Country')
+joined = merge(x=joined, y=split[[3]], by='Country')
+joined = merge(x=joined, y=split[[4]], by='Country')
+joined = merge(x=joined, y=split[[5]], by='Country')
+
+colnames(joined)[2] <- "2015"
+colnames(joined)[4] <- "2016"
+colnames(joined)[6] <- "2017"
+colnames(joined)[8] <- "2018"
+colnames(joined)[10] <- "2019"
+head(joined)
+joined_data <- select(joined, c('Country', '2015', '2016', '2017', '2018', '2019'))
+row.names(joined_data) <- joined_data$Country
+joined_data <- subset(joined_data, select = -c(Country))
+

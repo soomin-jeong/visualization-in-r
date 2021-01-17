@@ -1,11 +1,8 @@
 # Global Map
 setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/global_map")
 
-data <- read.csv("../data/2015.csv")
-
 # source("helpers.R")
 
-# Q3: What is the evolution of happiness over time? 
 library(shiny)
 library(highcharter)
 library(countrycode)
@@ -13,7 +10,7 @@ library(shinydashboard)
 library(dplyr)
 library(openintro)
 
-data <- read.csv("../data/2015.csv")
+data <- read.csv("../data/FullData.csv")
 colnames(data)
 
 ui<-
@@ -23,7 +20,7 @@ ui<-
       
       sidebarMenu( 
         # TODO : add up to 2019
-        selectInput('yearid','Select Year for Global Happiness Score',choices = c(2015),selected = 2015)
+        selectInput('yearid','Select Year for Global Happiness Score',choices = c(2015, 2016, 2017, 2018, 2019),selected = 2015)
       )),
     dashboardBody(
       tabBox(title = 'Global Happiness Map',id = 'tabset1',width = 12, tabPanel('Happiness Score',highchartOutput('chart',height = '500px')))
@@ -37,15 +34,14 @@ server <- function(input, output, session){
   score <- reactive(
     {
       data %>%
+        filter(Year == as.numeric(input$yearid)) %>% 
         mutate(iso3 = countrycode(Country,"country.name","iso3c")) %>%
-        mutate(score = as.numeric(Happiness.Score))
-       ## TO BE ADDED WITH THE DATASET IN OTHER YEARS
-       ##filter(YEAR_ID == as.numeric(input$yearid)) %>% 
+        mutate(score = as.numeric(HappinessScore))
     }
   )
   
   output$chart <- renderHighchart(highchart(type = "map") %>% 
-                                    hc_add_series_map(map = worldgeojson, df = score(), value = "Happiness.Score", joinBy = "iso3") %>% 
+                                    hc_add_series_map(map = worldgeojson, df = score(), value = "HappinessScore", joinBy = "iso3") %>% 
                                     hc_colorAxis(stops = color_stops()) %>% 
                                     hc_tooltip(useHTML=TRUE,headerFormat='',pointFormat = paste0(input$yearid,'  {point.Country} score : {point.score}')) %>% 
                                     hc_title(text = 'Global Hapiness Score') %>% 

@@ -4,16 +4,15 @@ setwd("/Users/JeongSooMin/Documents/workspace/visualization-in-r/time_series_by_
 
 source("helpers.R")
 
+library(dplyr)
 library(shiny)
-
-data <- read.csv("../data/2015.csv")
-colnames(data)
-data$Happiness.Score
-
+library(tidyverse)
+library(ECharts2Shiny)
 
 # Q3: What is the evolution of happiness over time? 
 
 ui <- fluidPage(
+  loadEChartsLibrary(),
   titlePanel(h1("Happiness By Region", align="center")),
   fluidRow(
     column(12,
@@ -33,21 +32,15 @@ ui <- fluidPage(
       )
     ),
     mainPanel(
-      plotOutput("bar", height=500)
-    )
+      tags$div(id="linechart", style="width:100%;height:1000px;"),
+      deliverChart(div_id = "linechart")    
+      )
   )
 )
 
 # Define server logic required to draw a histogram ----
 server <- function(input, output) {
-  output$bar <- renderPlot({
-    color <- c("blue", "red")
-    barplot(colSums(data[,c("Happiness.Score")]),
-            ylab="Total",
-            xlab="Census Year",
-            names.arg = c("Happiness.Score"),
-            col = color)
-  })
+  output$linechart <- renderLineChart("linechart", t(joined_data), theme = "default", running_in_shiny = TRUE)
 }
 
 shinyApp(ui = ui, server = server)
