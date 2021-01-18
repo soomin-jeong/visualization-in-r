@@ -1,6 +1,7 @@
 # Load packages ----
 library(shiny)
 library(quantmod)
+library(ECharts2Shiny)
 
 # Source helpers ----
 source("helpers.R")
@@ -25,10 +26,13 @@ ui <- fluidPage(
                       sidebarLayout(
                         sidebarPanel(
                           h4("Interaction Panel"),
-                          selectInput("region", "Choose a region:",
+                          selectInput("region1", "Choose a region:",
                                       list_regions
                           ),
                           
+                          selectInput("color1", "Choose the color map:",
+                                      choices = list_colors
+                          ),
                           
                           sliderInput("Year1",
                                       "Select the year-range:",
@@ -37,7 +41,7 @@ ui <- fluidPage(
                                       value= c(2015, 2019),
                                       dragRange=TRUE)
                         ),
-                        mainPanel(plotlyOutput("plot"), 
+                        mainPanel(plotlyOutput("plot1"), 
                                   HTML("<footer>
                                        By Tom van Knippenberg, Soo Min Jeong and Arturo Piñar Adan
                                        </footer>"))
@@ -52,11 +56,11 @@ ui <- fluidPage(
                                       list_regions
                           ),
                           
-                          selectInput("country", "Choose a country to highlight:",
+                          selectInput("country2", "Choose a country to highlight:",
                                       choices = c()
                           ),
                           
-                          selectInput("color", "Choose the color map:",
+                          selectInput("color2", "Choose the color map:",
                                       choices = list_colors
                           ),
                           
@@ -72,23 +76,28 @@ ui <- fluidPage(
                                        By Tom van Knippenberg, Soo Min Jeong and Arturo Piñar Adan
                                        </footer>")))),
              
-             tabPanel("Plot 3", 
+             tabPanel("Happiness Evolution Plot", 
                       sidebarLayout(
                         sidebarPanel(
                           h4("Interaction Panel"),
-                          selectInput("region", "Choose a region:",
-                                      list('All', 
-                                           'Europe',
-                                           'Africa',
-                                           'Asia')
+                          selectInput("region3", "Choose a region:",
+                                      list_regions
                           ),
                           
-                          sliderInput("Year3",
-                                      "Select the year-range:",
-                                      min = 2015,
-                                      max = 2019,
-                                      value= c(2015, 2019),
-                                      dragRange=TRUE)
+                          selectInput("country3", "Choose a country to highlight:",
+                                      choices = c()
+                          ),
+                          
+                          # selectInput("color3", "Choose the color map:",
+                          #             choices = list_colors
+                          # ),
+                          # 
+                          # sliderInput("Year3",
+                          #             "Select the year-range:",
+                          #             min = 2015,
+                          #             max = 2019,
+                          #             value= c(2015, 2019),
+                          #             dragRange=TRUE)
                         ),
                         mainPanel(plotlyOutput("plot3"),
                                   HTML("<footer>
@@ -100,21 +109,35 @@ ui <- fluidPage(
 
 # Server logic
 server <- function(input, output, session) {
-  myData <- reactive({
-    selectData(input$region, input$Year1, input$country)
-  })
+  # Tab 1
+  #output$plot1 <- renderPlotly()
   
+  # Tab 2
+  myData <- reactive({
+    selectData(input$region2, input$Year2, input$country2, input$color2)
+  })
+    
   observe({
-    x <- sort(unique(myData()$Country))
-    # Can also set the label and select items
-    updateSelectInput(session, "country",
-                      choices = x,
-                      selected = ""
+    x <- input$region2
+    data <- selectData(input$region2, input$Year2, input$country2, input$color2)
+    updateSelectInput(session, "country2",
+                      choices = c("None", sort(unique(data$Country))),
+                      selected = input$country2
     )
   })
-  #output$plot <- renderPlotly()
-  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2, input$country,
-                                                  input$color))
+  
+  output$plot2 <- renderPlotly(plot_relationships(input$region2, input$Year2, input$country2,
+                                                  input$color2))
+  # Tab 3
+  observe({
+    x <- input$region3
+    data <- selectData(input$region3, c(2015, 2019), input$country3, "Reds")
+    updateSelectInput(session, "country3",
+                      choices = c("None", sort(unique(data$Country))),
+                      selected = input$country3
+    )
+  })
+  output$plot3 <- renderPlotly(line_chart(input$region3, c(2015, 2019), input$country3, "Reds"))
 }
 
 # Run the app

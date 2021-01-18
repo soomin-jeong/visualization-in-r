@@ -1,12 +1,14 @@
 library(plotly)
 
 
-selectData <- function(region, yearRange, country){
+selectData <- function(region, yearRange, country, color){
   data <- read.csv("FullData.csv")
   data[is.na(data)] <- 0
-  data$color = rep('rgb(51, 153, 255)', nrow(data))
-  if (country != ""){
-    data[data$Country == country, ]$color = "orange"
+  color_points = gsub("s", "", color)
+  print(color_points)
+  data$color = rep(color_points, nrow(data))
+  if (country != "" & country != "None"){
+    data[data$Country == country, ]$color = "black"
   }
   data <- data[(data$Year >= yearRange[1]) & (data$Year <= yearRange[2]), ]
   if (region == 'All'){
@@ -38,23 +40,21 @@ selectData <- function(region, yearRange, country){
   
 
 plot_relationships <- function(region, years, country, color){
-  print(years)
-  data <- selectData(region, years, country)
+  data <- selectData(region, years, country, color)
   vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
-  print(vars)
   
   # heatmap
   cor_list <- cor(data$HappinessScore, data[vars])
   heatmap <- plot_ly(z = cor_list, x = vars, type='heatmap', colors = color)
-  heatmap <- heatmap %>% layout(xaxis=list(side='top'), yaxis=list(showticklabels=FALSE, 
-                                                                   showline=FALSE,
-                                                                   showgrid=FALSE,
-                                                                   zeroline=FALSE))
-  
+  heatmap <- heatmap %>% layout(xaxis=list(side='top'), 
+                                yaxis=list(showticklabels=FALSE,
+                                           showline=FALSE,
+                                           showgrid=FALSE,
+                                           zeroline=FALSE))
   # Scatter plot
   marker_format = list(
     color = data$color,
-    #colorscale = pl_colorscale,
+    #colorscale = color,
     size = 7,
     line = list(
       width = 1,
@@ -65,32 +65,32 @@ plot_relationships <- function(region, years, country, color){
                        "\nYear: ", Year)
   
   fig1 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Economy, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers", 
                   # Hover text:
                   text = text_format, showlegend=F)
   fig1 <- fig1 %>% layout(yaxis=list(range = c(0,10)))
   fig2 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Family, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers",
                   # Hover text:
                   text = text_format, showlegend=F)
   fig2 <- fig2 %>% layout(yaxis=list(range = c(0,10)))
   fig3 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Health, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers",
                   # Hover text:
                   text = text_format, showlegend=F)
   fig3 <- fig3 %>% layout(yaxis=list(range = c(0,10)))
   fig4 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Freedom, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers",
                   # Hover text:
                   text = text_format, showlegend=F)
   fig4 <- fig4 %>% layout(yaxis=list(range = c(0,10)))
   fig5 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~GovernmentCorruption, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers",
                   # Hover text:
                   text = text_format, showlegend=F)
   fig5 <- fig5 %>% layout(yaxis=list(range = c(0,10)))
   fig6 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Generosity, #color=~Region
-                  marker=marker_format,
+                  marker=marker_format, mode = "markers",
                   # Hover text:
                   text = text_format, showlegend=F)
   fig6 <- fig6 %>% layout(yaxis=list(range = c(0,10)))
@@ -152,4 +152,29 @@ scatter_matrix <- function(region){
   fig
 }
 
-# 
+line_chart <- function(region, years, country, color){
+  data <- selectData(region, years, country, color)
+  
+  mean_data <- aggregate(data$HappinessScore, list(data$Year), mean)
+  colnames(mean_data) <- c('Year', "HappinessScore")
+  
+  max_data <- aggregate(data$HappinessScore, list(data$Year), max)
+  colnames(max_data) <- c('Year', "HappinessScore")
+  
+  min_data <- aggregate(data$HappinessScore, list(data$Year), min)
+  colnames(min_data) <- c('Year', "HappinessScore")
+  
+  fig <- plot_ly(mean_data, x=~Year, y=~HappinessScore, type='scatter', mode='lines',
+                 name= "Average")
+  fig <- fig %>% add_trace(data=max_data, y=~HappinessScore, name="Max")
+  fig <- fig %>% add_trace(data=min_data, y=~HappinessScore, name= "Min")
+  
+  if (country != "" & country != "None"){
+    country_data = data[data$Country == country, ]
+    fig <- fig %>% add_trace(data=country_data, y=~HappinessScore, name= country)
+  }
+  
+  fig <- fig %>% layout(yaxis=list(range = c(0,10)))
+  fig
+}
+
