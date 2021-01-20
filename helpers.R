@@ -53,7 +53,8 @@ plot_map <- function (dataTarget, dataTargetColumn, color, legendTitle, plotTitl
   )
   fig <- fig %>% colorbar(title = legendTitle)
   fig <- fig %>% layout(
-    title = plotTitle
+    title = plotTitle,
+    autosize = T
   )
   
   fig

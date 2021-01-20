@@ -62,7 +62,8 @@ ui <- fluidPage(
                         ),
                         mainPanel(width = width_main,
                           h2("Spatial Distribution of Data"),
-                          plotlyOutput("plot1"), 
+                          fluidRow(column(1,
+                          plotlyOutput("plot1", width = "60vw", height = "60vh"))), 
                                   HTML(footer))
                         
                       )),
