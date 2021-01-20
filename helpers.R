@@ -7,14 +7,14 @@ selectData <- function(region, yearRange, country, color){
   color_points = gsub("s", "", color)
   print(color_points)
   data$color = rep(color_points, nrow(data))
+  
   if (country != "" & country != "None"){
-    data[data$Country == country, ]$color = "black"
+    data %>% filter(Country == country & color == "black")
   }
-  data <- data[(data$Year >= yearRange[1]) & (data$Year <= yearRange[2]), ]
-  if (region == 'All'){
-    return(data)
-  }
-  else if (region == 'Europe'){
+  
+  data %>% filter(Year >= yearRange[1] & Year <= yearRange[2])
+
+  if (region == 'Europe'){
     data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
   }
   else if (region == 'America'){
@@ -26,10 +26,9 @@ selectData <- function(region, yearRange, country, color){
   else if (region == 'Africa & Middle East'){
     data %>% filter(Region %in% c("Sub-Saharan Africa", "Middle East and Northern Africa"))
   }
-  else{
+  else if (region == 'Oceanico'){
     data %>% filter(Region %in% c("Australia and New Zealand"))
   }
-  
   return(data)
 }
   
