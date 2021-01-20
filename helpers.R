@@ -1,5 +1,5 @@
 library(plotly)
-
+library(dplyr)
 
 selectData <- function(region, yearRange, country, color){
   data <- read.csv("data/FullData.csv")
@@ -15,24 +15,19 @@ selectData <- function(region, yearRange, country, color){
     return(data)
   }
   else if (region == 'Europe'){
-    data <- data[(data$Region == "Western Europe") | 
-                   (data$Region ==  "Central and Eastern Europe"), ] 
+    data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
   }
   else if (region == 'America'){
-    data <- data[(data$Region == "North America") | 
-                   (data$Region ==  "Latin America and Caribbean"), ] 
+    data %>% filter(Region %in% c("North America","Latin America and Caribbean"))
   }
   else if (region == 'Asia'){
-    data <- data[(data$Region == "Southeastern Asia") | 
-                   (data$Region ==   "Eastern Asia" |
-                      (data$Region == "Southern Asia")), ] 
+    data %>% filter(Region %in% c("Southeastern Asia", "Eastern Asia", "Southern Asia"))
   }
   else if (region == 'Africa & Middle East'){
-    data <- data[(data$Region == "Sub-Saharan Africa") | 
-                   (data$Region ==   "Middle East and Northern Africa"), ]
+    data %>% filter(Region %in% c("Sub-Saharan Africa", "Middle East and Northern Africa"))
   }
   else{
-    data <- data[(data$Region == "Australia and New Zealand"),]   
+    data %>% filter(Region %in% c("Australia and New Zealand"))
   }
   
   return(data)
