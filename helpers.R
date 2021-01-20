@@ -2,7 +2,7 @@ library(plotly)
 
 
 selectData <- function(region, yearRange, country, color){
-  data <- read.csv("FullData.csv")
+  data <- read.csv("data/FullData.csv")
   data[is.na(data)] <- 0
   color_points = gsub("s", "", color)
   print(color_points)
