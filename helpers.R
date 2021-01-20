@@ -13,7 +13,7 @@ selectData <- function(region, yearRange, country, color){
   }
   
   data %>% filter(Year >= yearRange[1] & Year <= yearRange[2])
-
+  
   if (region == 'Europe'){
     data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
   }
@@ -31,13 +31,30 @@ selectData <- function(region, yearRange, country, color){
   }
   return(data)
 }
-  
 
-plot_relationships <- function(region, years, country, color){
+
+# Spatial plot
+plot_map <- function (dataTarget, dataTargetColumn, color, legendTitle, plotTitle) {
+  l <- list(color = toRGB("grey"), width = 0.5)
+  
+  fig <- plot_geo(dataTarget)
+  fig <- fig %>% add_trace(
+    z = dataTargetColumn, color = dataTargetColumn, colors = color,
+    text = dataTarget$Country, locations = dataTarget$countriesCodes, marker = list(line = l)
+  )
+  fig <- fig %>% colorbar(title = legendTitle)
+  fig <- fig %>% layout(
+    title = plotTitle
+  )
+}
+
+
+plot_relationships <- function(region, years, country, color, opac){
   data <- selectData(region, years, country, color)
+  names(data)[names(data) == 'Family'] <- 'SocialSupport'
   vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
   
-  # heatmap
+  # Heatmap
   cor_list <- cor(data$HappinessScore, data[vars])
   heatmap <- plot_ly(z = cor_list, x = vars, type='heatmap', colors = color)
   heatmap <- heatmap %>% layout(xaxis=list(side='top'), 
@@ -48,107 +65,59 @@ plot_relationships <- function(region, years, country, color){
   # Scatter plot
   marker_format = list(
     color = data$color,
-    #colorscale = color,
     size = 7,
+    opacity = opac,
     line = list(
       width = 1,
-      color = 'rgb(230,230,230)'
-    )
+      color = 'rgb(230,230,230)')
   )
   text_format = ~paste("Country: ", Country, 
                        "\nYear: ", Year)
+  # if (country != "" & country != "None"){
+  #   country_data <- data[data$Country == country, ]
+  #   print(country_data)
+  #   data <- data[data$Country != country, ]
+  # }
   
   fig1 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Economy, #color=~Region
-                  marker=marker_format, mode = "markers", 
-                  # Hover text:
-                  text = text_format, showlegend=F)
+                  marker=marker_format, mode = "markers", text = text_format, showlegend=F)
   fig1 <- fig1 %>% layout(yaxis=list(range = c(0,10)))
-  fig2 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Family, #color=~Region
-                  marker=marker_format, mode = "markers",
-                  # Hover text:
-                  text = text_format, showlegend=F)
+  
+  fig2 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~SocialSupport, #color=~Region
+                  marker=marker_format, mode = "markers",text = text_format, showlegend=F)
   fig2 <- fig2 %>% layout(yaxis=list(range = c(0,10)))
+  
   fig3 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Health, #color=~Region
-                  marker=marker_format, mode = "markers",
-                  # Hover text:
-                  text = text_format, showlegend=F)
+                  marker=marker_format, mode = "markers", text = text_format, showlegend=F)
   fig3 <- fig3 %>% layout(yaxis=list(range = c(0,10)))
+  
   fig4 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Freedom, #color=~Region
-                  marker=marker_format, mode = "markers",
-                  # Hover text:
-                  text = text_format, showlegend=F)
+                  marker=marker_format, mode = "markers", text = text_format, showlegend=F)
   fig4 <- fig4 %>% layout(yaxis=list(range = c(0,10)))
+  
   fig5 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~GovernmentCorruption, #color=~Region
-                  marker=marker_format, mode = "markers",
-                  # Hover text:
-                  text = text_format, showlegend=F)
+                  marker=marker_format, mode = "markers", text = text_format, showlegend=F)
   fig5 <- fig5 %>% layout(yaxis=list(range = c(0,10)))
+  
   fig6 <- plot_ly(type= 'scatter', data = data, y=~HappinessScore, x=~Generosity, #color=~Region
-                  marker=marker_format, mode = "markers",
-                  # Hover text:
-                  text = text_format, showlegend=F)
+                  marker=marker_format, mode = "markers", text = text_format, showlegend=F)
   fig6 <- fig6 %>% layout(yaxis=list(range = c(0,10)))
+  
+  # if (country != "" & country != "None"){
+  #   fig1 <- fig1 %>% add_trace(data=country_data, x=~Economy, 
+  #                              y=~HappinessScore, marker=marker_format)
+  # }
   
   scatter_fig <-subplot(fig1, fig2, fig3, fig4, fig5, fig6)
   scatter_fig <- scatter_fig %>% layout(showlegend=FALSE)
-  #scatter_fig
   
   fig <- subplot(heatmap, scatter_fig, nrows=2)
   fig <- fig %>% layout(showlegend2=TRUE, legend2=list(x=10, y=10))
   return(fig)
 }
 
-# Scatter matrix
 
-scatter_matrix <- function(region){
-  data <- selectData(region)
-  vars <- colnames(data)[c(6, 7, 8, 9, 10, 11)]
-  df <- data[c('Country', 'Region', "Happiness.Score", vars)]
-  colnames(df) <- c('Country', "Region", "Happiness", 'Economy', 'Family', 'Health', 'Freedom', 'Trust', 'Generosity')
-  axis = list(showline=FALSE,
-              zeroline=FALSE,
-              gridcolor='#ffff',
-              ticklen=7)
-
-  fig <- df %>% plot_ly()
-  fig <- fig %>%
-    add_trace(
-      type = 'splom',
-      dimensions = list(
-        list(label='Happiness', values=~Happiness),
-        list(label='Economy', values=~Economy),
-        list(label='Family', values=~Family),
-        list(label='Health', values=~Health),
-        list(label='Freedom', values=~Freedom),
-        list(label='Trust', values=~Trust),
-        list(label='Generosity', values=~Generosity)
-      ),
-      text=~Country
-    )
-
-  fig <- fig %>%
-    layout(
-      title= 'Happiness Dataset',
-      hovermode='closest',
-      dragmode= 'select',
-      plot_bgcolor='rgba(240,240,240, 0.95)',
-      xaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=7),
-      yaxis=list(domain=NULL, showline=F, zeroline=F, gridcolor='#ffff', ticklen=7),
-      xaxis2=axis,
-      xaxis3=axis,
-      xaxis4=axis,
-      xaxis5=axis,
-      xaxis6=axis,
-      xaxis7=axis
-
-    )
-
-  fig
-}
-
-line_chart <- function(region, years, country, color){
-  data <- selectData(region, years, country, color)
-  
+line_chart <- function(data, country, region){
   mean_data <- aggregate(data$HappinessScore, list(data$Year), mean)
   colnames(mean_data) <- c('Year', "HappinessScore")
   
@@ -159,16 +128,63 @@ line_chart <- function(region, years, country, color){
   colnames(min_data) <- c('Year', "HappinessScore")
   
   fig <- plot_ly(mean_data, x=~Year, y=~HappinessScore, type='scatter', mode='lines',
-                 name= "Average")
-  fig <- fig %>% add_trace(data=max_data, y=~HappinessScore, name="Max")
-  fig <- fig %>% add_trace(data=min_data, y=~HappinessScore, name= "Min")
+                 name= paste("Average", region, sep="_"), line=list(color="Blue"))
+  fig <- fig %>% add_trace(data=max_data, y=~HappinessScore, 
+                           name=paste("Max", region, sep="_"), line=list(color="Orange"))
+  fig <- fig %>% add_trace(data=min_data, y=~HappinessScore, name= paste("Min", region, sep="_")
+                           , line=list(color="Green"))
   
   if (country != "" & country != "None"){
     country_data = data[data$Country == country, ]
-    fig <- fig %>% add_trace(data=country_data, y=~HappinessScore, name= country)
+    fig <- fig %>% add_trace(data=country_data, y=~HappinessScore, name= country, line=list(color="Red"))
   }
   
-  fig <- fig %>% layout(yaxis=list(range = c(0,10)))
-  fig
+  fig <- fig %>% layout(yaxis=list(range = c(0,10)), 
+                        xaxis=list(dtick=1), 
+    annotations = list(x=2017, y =10, text=region, showarrow=F, 
+                       xref='x', yref='y', ax= 20, ay = 20)
+  )
+  return(fig)
 }
 
+
+# Evolution Plot
+evolution_plot <- function(region, years, country, color, jux){
+  if (jux == FALSE){
+    data <- selectData(region, years, country, color)
+    fig <- line_chart(data, country, region)
+  }
+  else{
+    
+    reg = "All"
+    data <- selectData(reg, years, country, color)
+    fig_all <- line_chart(data, country, reg)
+    
+    reg = "Africa & Middle East"
+    data <- selectData(reg, years, country, color)
+    fig1 <- line_chart(data, country, reg)
+    
+    reg = "America"
+    data <- selectData(reg, years, country, color)
+    fig2 <- line_chart(data, country, reg)
+    
+    reg = "Asia"  
+    data <- selectData(reg, years, country, color)
+    fig3 <- line_chart(data, country, reg)
+    
+    reg = "Europe"
+    data <- selectData(reg, years, country, color)
+    fig4 <- line_chart(data, country, reg)
+    
+    reg = "Oceania"
+    data <- selectData(reg, years, country, color)
+    fig5 <- line_chart(data, country, reg)
+    
+    fig <- subplot(fig_all, fig1, fig2, fig3, fig4, fig5, nrows=1)
+  
+    return(fig)
+  }
+}
+
+
+>>>>>>> main
