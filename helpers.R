@@ -11,6 +11,7 @@ library(dplyr)
 library(countrycode)
 library(plotly)
 
+data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
 
 selectData <- function(region, yearRange, country, color){
   data <- read.csv("data/FullData.csv")
@@ -20,27 +21,28 @@ selectData <- function(region, yearRange, country, color){
   data$color = rep(color_points, nrow(data))
   
   if (country != "" & country != "None"){
-    data %>% filter(Country == country & color == "black")
+    data<- data %>% filter(Country == country & color == "black")
   }
   
   data %>% filter(Year >= yearRange[1] & Year <= yearRange[2])
   
   if (region == 'Europe'){
-    data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
+    data <- data %>% filter(Region %in% c("Western Europe", "Central and Eastern Europe"))
   }
   else if (region == 'America'){
-    data %>% filter(Region %in% c("North America","Latin America and Caribbean"))
+    data <- data %>% filter(Region %in% c("North America","Latin America and Caribbean"))
   }
   else if (region == 'Asia'){
-    data %>% filter(Region %in% c("Southeastern Asia", "Eastern Asia", "Southern Asia"))
+    data <- data %>% filter(Region %in% c("Southeastern Asia", "Eastern Asia", "Southern Asia"))
   }
   else if (region == 'Africa & Middle East'){
-    data %>% filter(Region %in% c("Sub-Saharan Africa", "Middle East and Northern Africa"))
+    data <- data %>% filter(Region %in% c("Sub-Saharan Africa", "Middle East and Northern Africa"))
   }
   else if (region == 'Oceanico'){
-    data %>% filter(Region %in% c("Australia and New Zealand"))
+    data <- data %>% filter(Region %in% c("Australia and New Zealand"))
   }
-  return(data %>% subset(select=-c(X)))
+  data <- data %>% subset(select=-c(X))
+  return(data)
 }
 
 
