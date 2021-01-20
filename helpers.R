@@ -1,5 +1,16 @@
-library(plotly)
+# Check packages ---
+if(!require(dplyr)) install.packages("dplyr")
+if(!require(shiny)) install.packages("shiny")
+if(!require(plotly)) install.packages("plotly")
+if(!require(countrycode)) install.packages("countrycode")
+
+# Load packages ----
+library(shiny)
+library(quantmod)
 library(dplyr)
+library(countrycode)
+library(plotly)
+
 
 selectData <- function(region, yearRange, country, color){
   data <- read.csv("data/FullData.csv")
@@ -186,5 +197,3 @@ evolution_plot <- function(region, years, country, color, jux){
   }
 }
 
-
->>>>>>> main

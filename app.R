@@ -1,15 +1,3 @@
-# Check packages ---
-if(!require(dplyr)) install.packages("dplyr")
-if(!require(shiny)) install.packages("shiny")
-if(!require(plotly)) install.packages("plotly")
-if(!require(countrycode)) install.packages("countrycode")
-
-# Load packages ----
-library(shiny)
-library(quantmod)
-library(dplyr)
-library(countrycode)
-
 
 # Source helpers ----
 source("helpers.R")
