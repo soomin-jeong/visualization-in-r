@@ -193,7 +193,6 @@ server <- function(input, output, session) {
                                                   input$color2, input$Opac2))
   # Tab 3
   observe({
-    x <- input$region3
     data <- selectData(input$region3, c(2015, 2019), input$country3, "Reds")
     updateSelectInput(session, "country3",
                       choices = c("None", sort(unique(data$Country))),

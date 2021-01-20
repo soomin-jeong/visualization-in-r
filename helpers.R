@@ -40,7 +40,7 @@ selectData <- function(region, yearRange, country, color){
   else if (region == 'Oceanico'){
     data %>% filter(Region %in% c("Australia and New Zealand"))
   }
-  return(data)
+  return(data %>% subset(select=-c(X)))
 }
 
 
