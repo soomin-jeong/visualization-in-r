@@ -1,5 +1,6 @@
 library(plotly)
 
+
 # Function to help with data filtering and coloring
 selectData <- function(region, yearRange, country, color){
   data <- read.csv("data/FullData.csv")
@@ -138,7 +139,7 @@ line_chart <- function(data, country, region){
   min_data <- aggregate(data$HappinessScore, list(data$Year), min)
   colnames(min_data) <- c('Year', "HappinessScore")
   
-  fig <- plot_ly(mean_data, x=~Year, y=~HappinessScore, type='scatter', mode='lines',
+  fig <- plot_ly(mean_data, x=~Year, y=~HappinessScore, type='scatter', mode='lines', linetype = I("dash"),
                  name= paste("Average", region, sep="_"), line=list(color="Blue"))
   fig <- fig %>% add_trace(data=max_data, y=~HappinessScore, 
                            name=paste("Max", region, sep="_"), line=list(color="Orange"))
@@ -147,7 +148,7 @@ line_chart <- function(data, country, region){
   
   if (country != "" & country != "None"){
     country_data = data[data$Country == country, ]
-    fig <- fig %>% add_trace(data=country_data, y=~HappinessScore, name= country, line=list(color="Red"))
+    fig <- fig %>% add_trace(data=country_data, y=~HappinessScore, name= country, line=list(color="Red"), linetype=I("solid"))
   }
   
   fig <- fig %>% layout(yaxis=list(range = c(0,10)), 

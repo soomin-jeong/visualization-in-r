@@ -58,7 +58,8 @@ ui <- fluidPage(
                                       min = 2015,
                                       max = 2019,
                                       value= c(2015),
-                                      dragRange=FALSE)
+                                      dragRange=FALSE,
+                                      sep="")
                         ),
                         mainPanel(width = width_main,
                           h2("Spatial Distribution of Data"),
@@ -89,7 +90,8 @@ ui <- fluidPage(
                                       min = 2015,
                                       max = 2019,
                                       value= c(2015, 2019),
-                                      dragRange=TRUE),
+                                      dragRange=TRUE,
+                                      sep=""),
                           
                           sliderInput("Opac2",
                                       "Select the marker opacity:",
